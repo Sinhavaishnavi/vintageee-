@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rustic Capture</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+body {
+    background-color: #c1b49a;
+    font-family: "Georgia", serif;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e1e1e;
+    padding: 10px 20px;
+    color: white;
+}
+
+.navbar img {
+    height: 40px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #d3c7b2;
+}
+
+.main-title {
+    text-align: center;
+    font-size: 36px;
+    margin: 20px 0;
+    text-shadow: 2px 2px #000;
+}
+
+.camera-icon {
+    height: 50px;
+    vertical-align: middle;
+}
+
+.section {
+    display: flex;
+    justify-content: space-evenly; /* Adjust as needed: space-around, flex-start, etc. */
+    align-items: center; /* Vertically align items in the center */
+    margin: 30px 0;
+    flex-wrap: wrap; /* Allows items to wrap to the next line on smaller screens */
+    gap: 20px; /* Add some space between the direct children of the section */
+}
+
+.image-controls-container {
+    display: flex;
+    align-items: center; /* Vertically align items within this container */
+    gap: 20px; /* Space between the image and the controls */
+}
+
+
+.controls-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Add some vertical space between control groups */
+    gap: 10px; /* Space between labels and inputs */
+}
+
+.controls-group label {
+    white-space: nowrap; /* Prevent labels from wrapping */
+}
+
+/* You might need to adjust widths for the input elements */
+.controls-group input[type="range"],
+.controls-group input[type="color"],
+.controls-group input[type="text"],
+.controls-group select {
+    /* Add specific widths if needed */
+}
+
+.frame,
+#video,
+#photo {
+    border: 20px solid #111;
+    width: 350px;
+    height: 250px;
+    background-color: #ccc;
+    border-radius: 12px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+
+.photo:hover {
+    border-color: #555;
+}
+
+.button {
+    background-color: #d3c7b2;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    box-shadow: 2px 2px 4px #888;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #b0973d;
+}
+.button1 {
+    background-color: #d3c7b2;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    box-shadow: 2px 2px 4px #888;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button1:hover {
+    background-color: #b0973d;
+}
+
+.vintage-img {
+    width: 150px;
+    height: auto;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.text-input {
+    padding: 10px;
+    font-size: 16px;
+    width: 300px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.rounded-img {
+    border-radius: 20px;
+    width: 300px;
+}
+
+.custom-options {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+select,
+input[type="color"] {
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.upload-section {
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Large image modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.photo {
+    transition: border 0.3s ease;
+}
+
+.caption {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 1.2em;
+    font-family: 'Courier New', monospace;
+    text-shadow: 1px 1px 2px black;
+    bottom: 10px; /* Example positioning - adjust as needed based on HTML */
+}
+
+    </style>
+<head>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+
+<body>
+    <div class="navbar">
+        
+        <img src="{{ url_for('static', filename='cam1.png') }}" alt="Rustic Capture" />
+        <div class="nav-links">
+            <span>gets your vintage look</span>
+            <span>add text to your image</span>
+            <span>add border to image</span>
+            <span>Women</span>
+            <span>Our Technology</span>
+            <span>Review</span>
+            <a href="signup.html">
+                <span><img src="{{ url_for('static', filename='profile-icon.png') }}" height="20"
+                        alt="Profile" /></span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-title">
+        <img src="{{ url_for('static', filename='cam1.png') }}"  alt="Rustic Capture" class="camera-icon" /> VINTAGE LOOK MODERN BUILT
+    </div>
+
+    <!-- Webcam Capture Section -->
+    <div class="section">
+        <video id="video" autoplay playsinline></video>
+        <div>
+            <img src="{{ url_for('static', filename='girl3.png') }}" class="rounded-img"
+                onclick="showLargeImage(this)" />
+            
+        </div>
+    </div>
+
+    <div style="text-align: center">
+        <button class="button" id="captureBtn">CAPTURE PHOTO</button>
+    </div>
+    <div class="upload-section" style="text-align: center">
+        <input type="file" id="uploadInput" accept="image/*" />
+    </div>
+
+    <!-- Upload Image Section -->
+    <div class="section">
+    <div class="image-controls-container">
+        <div class="image-container">
+            <img id="photo" class="frame" onclick="showLargeImage(this)" />
+        </div>
+        <div>
+            <div class="controls-group">
+                <label for="borderColorPicker">Border Color:</label>
+                <input type="color" id="borderColorPicker" value="#000000" />
+            </div>
+            <div class="controls-group">
+                <label for="borderWidth">Border Width:</label>
+                <input type="range" id="borderWidth" min="0" max="20" value="4">
+            </div>
+            <div class="controls-group">
+                <label for="borderStyle">Border Style:</label>
+                <select id="borderStyle">
+                    <option value="solid">Solid</option>
+                    <option value="dashed">Dashed</option>
+                    <option value="dotted">Dotted</option>
+                    <option value="double">Double</option>
+                    <option value="groove">Groove</option>
+                </select>
+            </div>
+            <div class="controls-group">
+                <label for="borderRadius">Border Radius:</label>
+                <input type="range" id="borderRadius" min="0" max="100" value="0">
+            </div>
+            <div class="controls-group">
+                <label for="captionInput">Caption:</label>
+                <input type="text" id="captionInput" placeholder="Enter caption" />
+                <select id="captionPosition">
+                    <option value="bottom">Bottom</option>
+                    <option value="top">Top</option>
+                </select>
+            </div>
+             <div class="controls-group">
+                <label for="vintageIntensity">Vintage Intensity:</label>
+                <input type="range" id="vintageIntensity" min="0" max="100" value="50">
+            </div>
+            <div class="controls-group">
+                 <label for="framePreset">Frame Preset:</label>
+                        <select id="framePreset">
+                            <option value="">Select Frame</option>
+                            <option value="retro">Retro</option>
+                            <option value="polaroid">Polaroid</option>
+                            <option value="golden">Golden</option>
+                        </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div style="text-align: center">
+        <button class="button" id="applyVintageBtn">APPLY VINTAGE EFFECT</button>
+    </div>
+
+    <!-- Add Text Section -->
+    <div class="section">
+        <div>
+            <canvas id="canvas" style="display: none"></canvas>
+            <input class="text-input" id="textInput" placeholder="add text :-" />
+            <div class="custom-options">
+                <select id="fontSelect">
+                    <option value="Georgia">Georgia</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Comic Sans MS">Comic Sans</option>
+                </select>
+                <input type="color" id="textColorPicker" value="#ffffff" />
+            </div>
+            <div style="text-align: center">
+                <button class="button" id="addTextBtn">ADD TEXT</button>
+            </div>
+        </div>
+
+
+        <img src="{{ url_for('static', filename='girl3.png') }}" class="rounded-img" />
+    </div>
+    <div style="text-align: center">
+        <button class="button1" id="downloadImageBtn">DOWNLOAD</button>
+    </div>
+    <br>
+
+</body>
+
+   <br>
+
+
+    <!-- Footer Section -->
+     <br>
+
+    <footer
+        style="
+            padding: 30px;
+            background-color: #1e1e1e;
+            color: #d3c7b2;
+            text-align: center;
+        "
+    >
+        <div style="margin-bottom: 20px">
+            <a href="#" style="margin: 0 10px; color: #d3c7b2">Home</a>
+            <a href="#" style="margin: 0 10px; color: #d3c7b2">About</a>
+            <a href="#" style="margin: 0 10px; color: #d3c7b2">Features</a>
+            <a href="#" style="margin: 0 10px; color: #d3c7b2">Contact</a>
+        </div>
+        <div class="social-icons" style="margin-bottom: 20px">
+            <a href="#" style="color: #d3c7b2"
+                ><i class="fab fa-facebook-f"></i> Facebook</a
+            >
+            |
+            <a href="#" style="color: #d3c7b2"
+                ><i class="fab fa-instagram"></i> Instagram</a
+            >
+            |
+            <a href="#" style="color: #d3c7b2"><i class="fab fa-twitter"></i> Twitter</a>
+        </div>
+        <div style="font-size: 14px">&copy; 2025 Rustic Capture. All rights reserved.</div>
+    </footer>
+
+    <!-- Modal for Large Image View -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01" />
+    </div>
+
+
+        <script>
+            const video = document.getElementById("video");
+            const canvas = document.getElementById("canvas");
+            const photo = document.getElementById("photo");
+            const captureBtn = document.getElementById("captureBtn");
+            const borderColorPicker = document.getElementById("borderColorPicker");
+            const shutterSound = document.getElementById("shutterSound");
+            const textInput = document.getElementById("textInput");
+            const fontSelect = document.getElementById("fontSelect");
+            const textColorPicker = document.getElementById("textColorPicker");
+            const addTextBtn = document.getElementById("addTextBtn");
+            const downloadImageBtn = document.getElementById("downloadImageBtn");
+            const uploadInput = document.getElementById("uploadInput");
+            const applyVintageBtn = document.getElementById("applyVintageBtn");
+
+            let currentImageDataURL = null;
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function (err) {
+                    console.log("Error accessing camera: " + err);
+                });
+
+            captureBtn.addEventListener("click", () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext("2d").drawImage(video, 0, 0);
+                currentImageDataURL = canvas.toDataURL("image/png");
+                photo.src = currentImageDataURL;
+                shutterSound.play();
+            });
+
+            const borderWidth = document.getElementById("borderWidth");
+                const borderStyle = document.getElementById("borderStyle");
+
+                function updateBorder() {
+                    const color = borderColorPicker.value;
+                    const width = borderWidth.value + "px";
+                    const style = borderStyle.value;
+                    photo.style.border = `${width} ${style} ${color}`;
+                }
+
+                borderColorPicker.addEventListener("input", updateBorder);
+                borderWidth.addEventListener("input", updateBorder);
+                borderStyle.addEventListener("change", updateBorder);
+
+                const borderRadius = document.getElementById("borderRadius");
+                    borderRadius.addEventListener("input", () => {
+                        photo.style.borderRadius = borderRadius.value + "px";
+                    });
+                    const captionInput = document.getElementById('captionInput');
+                        const captionPosition = document.getElementById('captionPosition');
+                        const captionDiv = document.createElement('div');
+                        captionDiv.id = 'caption';
+                        photo.parentElement.style.position = 'relative';
+                        photo.parentElement.appendChild(captionDiv);
+
+                        captionInput.addEventListener('input', () => {
+                            captionDiv.textContent = captionInput.value;
+                        });
+                        captionPosition.addEventListener('change', () => {
+                            captionDiv.style.top = captionPosition.value === 'top' ? '10px' : '';
+                            captionDiv.style.bottom = captionPosition.value === 'bottom' ? '10px' : '';
+                        });
+                        const vintageSlider = document.getElementById('vintageIntensity');
+                            vintageSlider.addEventListener('input', () => {
+                                const value = vintageSlider.value;
+                                photo.style.filter = `grayscale(${value}%) sepia(${value}%) contrast(1.2)`;
+                            });
+
+    const framePreset = document.getElementById('framePreset');
+    framePreset.addEventListener('change', () => {
+        switch (framePreset.value) {
+            case 'retro':
+                photo.style.border = "8px dashed brown";
+                photo.style.borderRadius = "5px";
+                break;
+            case 'polaroid':
+                photo.style.border = "15px solid white";
+                photo.style.borderBottom = "30px solid white";
+                photo.style.borderRadius = "0px";
+                break;
+            case 'golden':
+                photo.style.border = "10px double gold";
+                photo.style.borderRadius = "10px";
+                break;
+            default:
+                photo.style.border = "none";
+                photo.style.borderRadius = "0px";
+        }
+    });
+
+            applyVintageBtn.addEventListener("click", () => {
+                if (!photo.src) return;
+                const img = new Image();
+                img.onload = function () {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const context = canvas.getContext("2d");
+                    context.filter = "sepia(1) contrast(1.5) saturate(0.5)";
+                    context.drawImage(img, 0, 0);
+                    currentImageDataURL = canvas.toDataURL("image/png");
+                    photo.src = currentImageDataURL;
+                    photo.style.filter = "none";
+                };
+                img.src = photo.src;
+            });
+
+            addTextBtn.addEventListener("click", () => {
+                if (!currentImageDataURL) return;
+                const img = new Image();
+                img.onload = function () {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const context = canvas.getContext("2d");
+                    context.drawImage(img, 0, 0);
+                    const font = fontSelect.value;
+                    const color = textColorPicker.value;
+                    context.font = `30px ${font}`;
+                    context.fillStyle = color;
+                    context.fillText(textInput.value, 20, 50);
+                    currentImageDataURL = canvas.toDataURL("image/png");
+                    photo.src = currentImageDataURL;
+                };
+                img.src = currentImageDataURL;
+            });
+
+            downloadImageBtn.addEventListener("click", () => {
+                if (!currentImageDataURL) return;
+                const a = document.createElement("a");
+                a.href = currentImageDataURL;
+                a.download = "vintage_image.png";
+                a.click();
+            });
+
+            uploadInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        photo.src = e.target.result;
+                        currentImageDataURL = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function showLargeImage(img) {
+                const modal = document.getElementById("myModal");
+                const modalImg = document.getElementById("img01");
+                modal.style.display = "block";
+                modalImg.src = img.src;
+            }
+
+            function closeModal() {
+                document.getElementById("myModal").style.display = "none";
+            }
+        </script>
+
+</body>
+
+</html>
